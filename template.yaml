@@ -16,6 +16,7 @@ Resources:
       PrimaryKey:
         Name: id # Our table's primary key is 'id'
         Type: String
+        
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
