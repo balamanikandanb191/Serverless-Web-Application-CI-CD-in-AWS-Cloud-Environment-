@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Serverless App</title>
+    <style>
+        /* --- PUDHU CSS (NEW CSS) --- */
+        
+        @keyframes fadeIn {
+            /* Idhu dhaan animation. Pudhu item add aagumbodhu run aagum. */
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5; /* Light grey background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        .app-container {
+            /* Un app-a oru "card" maari aakkirom */
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+        }
+        
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .input-container {
+            /* Input-um button-um serndhu irukka */
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1; /* Input box full width eduthukum */
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-right: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease; /* Animation */
+        }
+
+        input[type="text"]:focus {
+            /* Type pannumbodhu animation */
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0,123,255,0.2);
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff; /* Blue button */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            /* Button mela mouse vecha color maarum */
+            background-color: #0056b3; /* Darker blue */
+        }
+        
+        button:active {
+            /* Button-a click pannumbodhu chinna effect */
+            transform: scale(0.98);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f9f9f9;
+            margin: 8px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            
+            /* Pudhu item-ku animation */
+            animation: fadeIn 0.4s ease;
+            
+            /* Hover animation */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        li:hover {
+            /* List item mela mouse vecha 'pop' aagum */
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+    </style>
+</head>
+<body>
+    
+    <div class="app-container">
+
+        <h1>My To-Do List</h1>
+        
+        <div class="input-container">
+            <input type="text" id="todoInput" placeholder="Enter new todo...">
+            <button onclick="addTodo()">Add Item</button>
+        </div>
+
+        <h2>Current Todos:</h2>
+        <ul id="todoList">Loading...</ul>
+    
+    </div> <script>
+        // Un JavaScript code-la endha maatharamum illa (No change)
+        const API_URL = 'https://g119iy0347.execute-api.ap-south-1.amazonaws.com/Prod/todos';
+
+        async function getTodos() {
+            try {
+                const response = await fetch(API_URL);
+                const todos = await response.json();
+                
+                const list = document.getElementById('todoList');
+                list.innerHTML = '';
+                
+                if (todos.length === 0) {
+                    list.innerHTML = '<li>No items yet!</li>';
+                } else {
+                    todos.forEach(todo => {
+                        list.innerHTML += `<li>${todo.todo} (ID: ${todo.id})</li>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching todos:', error);
+                document.getElementById('todoList').innerHTML = '<li>Error loading items.</li>';
+            }
+        }
+
+        async function addTodo() {
+            const todoText = document.getElementById('todoInput').value;
+            if (!todoText) return; 
+
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ todo: todoText })
+            });
+            
+            document.getElementById('todoInput').value = '';
+            getTodos();
+        }
+
+        getTodos();
+    </script>
+</body>
+</html>

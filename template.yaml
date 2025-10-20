@@ -1,0 +1,52 @@
+# This is an AWS SAM template
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  A simple serverless To-Do application
+
+Globals:
+  Function:
+    Timeout: 10 # 10 second timeout for all functions
+
+Resources:
+  # 1. The DynamoDB Table (Our Database)
+  TodoTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id # Our table's primary key is 'id'
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # 2. The Lambda Function (Our Backend Logic)
+  TodoApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/ # Points to the 'backend' folder
+      Handler: app.handler # Points to 'app.js' file's 'handler' function
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          # Give the Lambda function the table name
+          TABLE_NAME: !Ref TodoTable
+      Policies:
+        # Give permission for the Lambda to read/write to the table
+        - DynamoDBReadPolicy:
+            TableName: !Ref TodoTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref TodoTable
+      Events:
+        # 3. The API Gateway (Our URL)
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /todos # The URL path will be .../todos
+            Method: ANY # Accept any method (GET, POST, etc.)
+
+Outputs:
+  # Tell us the final URL of our API
+  TodoApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://$${ServerlessRestApi}.execute-api.$${AWS::Region}.amazonaws.com/Prod/todos"

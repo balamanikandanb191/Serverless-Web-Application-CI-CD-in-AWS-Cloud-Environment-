@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'A simple serverless To-Do application
+
+  '
+Globals:
+  Function:
+    Timeout: 10
+Resources:
+  TodoTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  TodoApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: TodoApiFunction
+      Handler: app.handler
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: TodoTable
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: TodoTable
+      - DynamoDBWritePolicy:
+          TableName:
+            Ref: TodoTable
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /todos
+            Method: ANY
+    Metadata:
+      SamResourceId: TodoApiFunction
+Outputs:
+  TodoApiUrl:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://$${ServerlessRestApi}.execute-api.$${AWS::Region}.amazonaws.com/Prod/todos
