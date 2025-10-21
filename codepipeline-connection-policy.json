@@ -1,0 +1,10 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "codeconnections:UseConnection",
+            "Resource": "arn:aws:codeconnections:ap-south-1:235494796307:connection/c0ff623a-e1a7-4f43-9133-62bfff62e91a"
+        }
+    ]
+}

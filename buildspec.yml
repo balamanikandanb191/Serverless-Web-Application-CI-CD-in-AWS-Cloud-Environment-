@@ -3,13 +3,10 @@ version: 0.2
 phases:
   build:
     commands:
-      # 1. Backend-a package pannu
+      # 1. Backend-a package pannu (Corrected - Single Line)
       - echo "Packaging backend..."
-      - aws cloudformation package \
-          --template-file template.yaml \
-          --s3-bucket aws-sam-cli-managed-default-samclisourcebucket-zxg34ej7v7wy \
-          --output-template-file packaged-template.yaml
-          
+      - aws cloudformation package --template-file template.yaml --s3-bucket aws-sam-cli-managed-default-samclisourcebucket-zxg34ej7v7wy --output-template-file packaged-template.yaml
+
       # 2. Frontend files-a oru thani folder-la podu
       - echo "Copying frontend files..."
       - mkdir frontend-output
@@ -17,8 +14,10 @@ phases:
 
 artifacts:
   files:
+    # Idhu Backend deploy panna (Per: BuildArtifact)
     - packaged-template.yaml
   secondary-artifacts:
+    # Idhu Frontend deploy panna (Per: FrontendArtifact)
     FrontendArtifact:
       files:
         - '**/*'
