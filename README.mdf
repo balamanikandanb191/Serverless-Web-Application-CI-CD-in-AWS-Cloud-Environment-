@@ -190,7 +190,51 @@ Amazon S3: To deploy to your website bucket. Use the FrontendArtifact and ensure
 Create the pipeline. It will trigger automatically.
 
 7. Code Files Explained
-(This section remains the same as your provided text, as it is already well-explained.)
+template.yaml: The main blueprint for our serverless backend, written using the AWS Serverless Application Model (SAM). It defines all the AWS resources needed for the application to run:
+
+Globals: This section defines common properties for all resources. We used it to configure CORS (Cross-Origin Resource Sharing) for our entire API, allowing our S3 website to call the API securely.
+
+Resources:
+
+TodoTable: Defines the DynamoDB table with a primary key named id.
+
+TodoApiFunction: Defines the Lambda function, specifying its runtime (nodejs18.x), code location (backend/), and handler function (app.handler). It also defines the permissions the function needs, such as DynamoDBCrudPolicy, which allows it to perform all actions on our TodoTable.
+
+Events: This crucial part connects the Lambda function to API Gateway, creating the actual HTTP endpoints. It defines paths like /todos (for GET and POST) and /todos/{id} (for PUT and DELETE), linking them to the Lambda function.
+
+backend/app.js: The heart of the backend logic, written in Node.js. This code runs on AWS Lambda every time the API is called.
+
+AWS SDK: It uses the @aws-sdk/lib-dynamodb library to easily interact with our DynamoDB table.
+
+Handler Function: The exports.handler is the main function that Lambda executes. It inspects the event object to determine the HTTP method (GET, POST, etc.) and path parameters (like the item id).
+
+CRUD Logic: A switch statement routes the request to the appropriate logic: ScanCommand to get all items, PutCommand to add an item, DeleteCommand to remove one, and UpdateCommand to edit one.
+
+CORS Headers: The code explicitly includes CORS headers in every response to ensure the browser doesn't block the API calls from our frontend.
+
+frontend/index.html: The complete user interface in a single file.
+
+HTML: Provides the basic structure of the page, including the title, input box for new items, the "Add Item" button, and an unordered list (<ul>) to display the to-dos.
+
+CSS (<style> tag): Contains all the styling rules to make the application look modern and professional. This includes the color scheme, fonts, spacing, a "card" layout, and interactive animations and hover effects on buttons and list items.
+
+JavaScript (<script> tag): This is the client-side logic that makes the application dynamic. It uses the browser's fetch() API to communicate with our backend API Gateway endpoint. It has functions to getTodos, addTodo, deleteTodo, and editTodo, which handle user interactions and update the UI accordingly.
+
+buildspec.yml: This is the instruction manual for AWS CodeBuild, defining what happens during the CI/CD pipeline's build stage.
+
+phases: We only use the build phase.
+
+commands:
+
+It runs the aws cloudformation package command. This command takes our template.yaml, zips up the backend/ code folder, uploads it to the SAM artifact S3 bucket, and produces a new template file (packaged-template.yaml) that CloudFormation can understand.
+
+It creates a directory (frontend-output) and copies the index.html file into it.
+
+artifacts: This section tells CodeBuild what files to output for the next stage (Deploy).
+
+Primary artifact: packaged-template.yaml is the output for the CloudFormation deploy action.
+
+Secondary artifact (FrontendArtifact): The contents of the frontend-output directory are the output for the S3 deploy action.
 
 8. Troubleshooting: Common Errors Faced & Solutions
 (This section remains the same as your provided text, as it is a very valuable record of the development process.)
